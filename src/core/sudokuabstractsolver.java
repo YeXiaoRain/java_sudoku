@@ -13,55 +13,52 @@ public class sudokuabstractsolver {
     private boolean isUpdate;
     private int numbernum;
     private int len;
+    private List<int[]> relations;
+    private List<List<Integer>> gridsrelation;
 
     private sudokuabstractsolver(int nn, int l) throws Exception {
         numbernum = nn;
         len = l;
+        relations = new ArrayList<>();
+        gridsrelation = new ArrayList<>();
+        for (int i = 0; i < l; i++) {
+            gridsrelation.add(new ArrayList<Integer>());
+        }
         sdka = sudokuabstract.getNewSudokuAbstract(nn, l);
     }
 
-    private void initial(int rs) throws Exception {
-        resultsize = rs;
-        for(int i=0;i<len;i++){
-            updateImpossible(i);
+    private void initial(sudokuabstract s, int rs) throws Exception {
+        if (s == sdka) {
+            resultsize = rs;
+        }
+        for (int i = 0; i < len; i++) {
+            s.getGrid(i).leftpossiblenum = numbernum;
+            s.getGrid(i).impossibleValue = new boolean[numbernum + 1];
+        }
+        for (int i = 0; i < len; i++) {
+            updateImpossible(s, i);
         }
     }
 
-    private void gridonlyres(int index) throws Exception {
-        sudokuabstract.grid g = sdka.getGrid(index);
+    private void gridonlyres(sudokuabstract s, int index) throws Exception {
+        sudokuabstract.grid g = s.getGrid(index);
         if (g.value != sudokuabstract.EMPTY) {
             return;
         }
-        //g.impossibleValue = new boolean[leftpossiblenum + 1]; // 0 is take place ,1~numbernum corresponding to the value
-        //List<int[]> relations = sdka.getRelations(); // simplify??
-        //for (int i = 0, maxi = g.relationListIndex.size(); i < maxi; i++) {
-        //    int[] thisrel = relations.get(g.relationListIndex.get(i));
-        //    for (int j = 0; j < numbernum; j++) {
-        //        if (thisrel[j] == index)
-        //            continue;
-        //        sudokuabstract.grid gj = sdka.getGrid(thisrel[j]);
-        //        if (gj.value != sudokuabstract.EMPTY && !g.impossibleValue[gj.value]) {
-        //            g.impossibleValue[gj.value] = true;
-        //            g.leftpossiblenum--;
-        //        }
-        //    }
-        //}
         if (g.leftpossiblenum == 1) {
             int v = 0;// never be zero or it will throw Exception
             for (int i = 1; i <= numbernum; i++) {
                 if (!g.impossibleValue[i])
                     v = i;
             }
-            sdka.setGrid(index, v);
-            updateImpossible(index);
-            isUpdate = true;
+            s.setGrid(index, v);
+            updateImpossible(s, index);
         } else if (g.leftpossiblenum == 0) {
             throw new sudokuException(sudokuException.ERR_BADSUDOKU, "BAD SODUKU: CONFLICT", index);
         }
     }
 
-    private void relonlypos(int index) throws Exception {
-        List<int[]> relations = sdka.getRelations();
+    private void relonlypos(sudokuabstract s, int index) throws Exception {
         int[] rel = relations.get(index);
         for (int v = 1; v <= numbernum; v++) {
             boolean[] impossibleindexsindex = new boolean[numbernum];
@@ -69,9 +66,9 @@ public class sudokuabstractsolver {
             int i;
             for (i = 0; i < numbernum; i++) {
                 int pos = rel[i];
-                if (sdka.getGrid(pos).value == v)
+                if (s.getGrid(pos).value == v)
                     break;
-                if (sdka.getGrid(pos).value != sudokuabstract.EMPTY || sdka.getGrid(pos).impossibleValue[v]) {
+                if (s.getGrid(pos).value != sudokuabstract.EMPTY || s.getGrid(pos).impossibleValue[v]) {
                     possibleposnum--;
                     impossibleindexsindex[i] = true;
                 }
@@ -84,76 +81,132 @@ public class sudokuabstractsolver {
                     if (!impossibleindexsindex[i])
                         pos = rel[i];
                 }
-                sdka.setGrid(pos, v);
-                updateImpossible(index);
-                isUpdate = true;
+                s.setGrid(pos, v);
+                updateImpossible(s, index);
             } else if (possibleposnum == 0) {
                 throw new sudokuException(sudokuException.ERR_BADSUDOKU, "BAD SODUKU: CONFLICT RELATION", index);
             }
         }
     }
 
-    private void enumerationMethod() throws Exception {
+    private void exclusionMethod(sudokuabstract s) throws Exception {
         int i;
-        int rels = sdka.getRelations().size();
+        int rels = relations.size();
         do {
             isUpdate = false;
             for (i = 0; i < len; i++) {
-                gridonlyres(i);
+                gridonlyres(s, i);
             }
             for (i = 0; i < rels; i++) {
-                relonlypos(i);
+                relonlypos(s, i);
             }
         } while (isUpdate);
     }
-    private void updateImpossible(int index) throws Exception {
-        sudokuabstract.grid g = sdka.getGrid(index);
-        if(g.value==sudokuabstract.EMPTY)
+
+    private void updateImpossible(sudokuabstract s, int index) throws Exception {
+        sudokuabstract.grid g = s.getGrid(index);
+        if (g.value == sudokuabstract.EMPTY)
             return;
+        isUpdate = true;
         int v = g.value;
-        List<int []> relations = sdka.getRelations();
-        List<Integer> gridrel = g.relationListIndex;
+        List<Integer> gridrel = gridsrelation.get(index);
         for (Integer rindex : gridrel) {
             int[] rels = relations.get(rindex);
             for (int j = 0; j < numbernum; j++) {
                 int pos = rels[j];
-                if (sdka.getGrid(pos).value != sudokuabstract.EMPTY)
+                if (s.getGrid(pos).value != sudokuabstract.EMPTY)
                     continue;
-                if (sdka.getGrid(pos).impossibleValue[v])
+                if (s.getGrid(pos).impossibleValue[v])
                     continue;
-                sdka.getGrid(pos).impossibleValue[v] = true;
-                sdka.getGrid(pos).leftpossiblenum--;
+                s.getGrid(pos).impossibleValue[v] = true;
+                s.getGrid(pos).leftpossiblenum--;
             }
         }
     }
-    private void exclusionMethod() {
 
+    private List<int[]> enumerationMethod(sudokuabstract s, int maxres) throws Exception {
+        sudokuabstract stmp = new sudokuabstract(1, 1);
+        int i;
+        for (i = 0; i < len; i++) {
+            if (s.getGrid(i).value == sudokuabstract.EMPTY)
+                break;
+        }
+        if (i == len)
+            throw new sudokuException(sudokuException.ERR_ERROR, "fill all shouldn't go here");
+        List<int[]> res = new ArrayList<>();
+        sudokuabstract.grid g = s.getGrid(i);
+        int v;
+        for (v = 1; v <= numbernum; v++) {
+            if (!g.impossibleValue[v]) {
+                s.fork(stmp);
+                stmp.getGrid(i).value = v;
+                try {
+                    List<int[]> ret = calculate(stmp, maxres);
+                    if (ret.size() != 0) {
+                        res.addAll(ret);
+                    }
+                    if (resultsize == 0)
+                        break;
+                } catch (sudokuException e) {
+                    if (e.err != sudokuException.ERR_BADSUDOKU)
+                        e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return res;
+    }
+
+    private List<int[]> calculate(sudokuabstract s, int maxres) throws Exception {
+        List<int[]> ret = new ArrayList<>();
+        initial(s, maxres);
+        exclusionMethod(s);
+        if (s.fillcheck()) {
+            resultsize--;
+            s.getData(ret);
+            return ret;
+        }
+        return enumerationMethod(s, maxres);
+    }
+
+    private void setPuzzle(sudokuabstract s, int[] puz) throws Exception {
+        if (puz.length != len)
+            throw new sudokuException(sudokuException.ERR_ERROR, "setPuzzle wrong length");
+        for (int i = 0; i < len; i++) {
+            s.setGrid(i, puz[i]);
+        }
     }
 
     public List<int[]> calculate(int maxres) throws Exception {
-        res = new ArrayList<int[]>();
-        initial(maxres);
-        enumerationMethod();
-        if(sdka.fillcheck()) {
-            sdka.getData(res);
-            return res;
-        }
-        exclusionMethod();
-        return res;
+        return this.calculate(sdka, maxres);
     }
 
     public void setRelations(int[][] rels) throws Exception {
         for (int[] r : rels) {
-            sdka.setRelation(r);
+            if (r.length != numbernum)
+                throw new sudokuException(sudokuException.ERR_ERROR, "wrong rel length");
+            boolean[] conflictSol = new boolean[len];
+            int i;
+            for (i = 0; i < numbernum; i++) {
+                if (r[i] < 0 || r[i] >= len)
+                    throw new sudokuException(sudokuException.ERR_ERROR, "wrong rel index");
+                if (conflictSol[r[i]])
+                    throw new sudokuException(sudokuException.ERR_ERROR, "relation conflict");
+                conflictSol[r[i]] = true;
+            }
+            int[] appendarr = new int[numbernum];
+            System.arraycopy(r, 0, appendarr, 0, numbernum);
+            relations.add(appendarr);
+            int relationindex = relations.size() - 1;
+            for (i = 0; i < numbernum; i++) {
+                gridsrelation.get(r[i]).add(relationindex);
+            }
         }
     }
 
     public void setPuzzle(int[] puz) throws Exception {
-        if (puz.length != len)
-            throw new sudokuException(sudokuException.ERR_ERROR, "setPuzzle wrong length");
-        for (int i = 0; i < len; i++) {
-            sdka.setGrid(i, puz[i]);
-        }
+        this.setPuzzle(sdka, puz);
     }
 
     public static sudokuabstractsolver getNewSdkSolver(int nn, int l) throws Exception {

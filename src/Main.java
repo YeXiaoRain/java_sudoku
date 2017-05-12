@@ -21,10 +21,10 @@ public class Main {
                     {8, 9, 12, 13},
                     {10, 11, 14, 15}});
             sdks.setPuzzle(new int[]{
-                    1, 0, 0, 0,
+                    1, 2, 3, 4,
                     0, 0, 0, 0,
-                    0, 0, 2, 0,
-                    4, 2, 0, 0
+                    0, 0, 0, 0,
+                    0, 0, 0, 0
             });
             List<int[]> res = sdks.calculate(2);
             int resnum = res.size();
