@@ -29,7 +29,7 @@ class sudokuabstract {
     * e.g. standard sudoku (numbernum,length)=(9,81)
     * */
     sudokuabstract(int nn, int l) throws Exception {
-        if (nn <= 0 || l % nn != 0)
+        if (nn <= 0 || l < nn)
             throw new sudokuException(sudokuException.ERR_ERROR, "sudokuabstract parameter error");
         numbernum = nn;
         len = l;
