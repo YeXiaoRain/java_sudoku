@@ -5,8 +5,34 @@ import java.util.List;
 
 /**
  * based on sudokuabstract, this class is focus on how to solve
- */
-public class sudokuabstractsolver {
+ * this class also record the relation between grids
+ * e.g.
+ * standard 4*4 sudoku is indexing as
+ *  0  1 | 2  3
+ *  4  5 | 6  7
+ *  -----+-----
+ *  8  9 |10 11
+ * 12 13 |14 15
+ *
+ * so you need use
+ * sudokuabstractsolver sdks = sudokuabstractsolver.getNewSdkSolver(4, 16);
+ * sdks.setRelations(new int[][]{
+ *      {0, 1, 2, 3},
+ *      {4, 5, 6, 7},
+ *      {8, 9, 10, 11},
+ *      {12, 13, 14, 15},
+ *
+ *      {0, 4, 8, 12},
+ *      {1, 5, 9, 13},
+ *      {2, 6, 10, 14},
+ *      {3, 7, 11, 15},
+ *
+ *      {0, 1, 4, 5},
+ *      {2, 3, 6, 7},
+ *      {8, 9, 12, 13},
+ *      {10, 11, 14, 15}});
+ * */
+class sudokuabstractsolver {
     private sudokuabstract sdka;
     private int resultsize = 0;
     private List<int[]> res;
@@ -22,7 +48,7 @@ public class sudokuabstractsolver {
         relations = new ArrayList<>();
         gridsrelation = new ArrayList<>();
         for (int i = 0; i < l; i++) {
-            gridsrelation.add(new ArrayList<Integer>());
+            gridsrelation.add(new ArrayList<>());
         }
         sdka = sudokuabstract.getNewSudokuAbstract(nn, l);
     }
@@ -178,11 +204,11 @@ public class sudokuabstractsolver {
         }
     }
 
-    public List<int[]> calculate(int maxres) throws Exception {
+    List<int[]> calculate(int maxres) throws Exception {
         return this.calculate(sdka, maxres);
     }
 
-    public void setRelations(int[][] rels) throws Exception {
+    void setRelations(int[][] rels) throws Exception {
         for (int[] r : rels) {
             if (r.length != numbernum)
                 throw new sudokuException(sudokuException.ERR_ERROR, "wrong rel length");
@@ -205,11 +231,11 @@ public class sudokuabstractsolver {
         }
     }
 
-    public void setPuzzle(int[] puz) throws Exception {
+    void setPuzzle(int[] puz) throws Exception {
         this.setPuzzle(sdka, puz);
     }
 
-    public static sudokuabstractsolver getNewSdkSolver(int nn, int l) throws Exception {
+    static sudokuabstractsolver getNewSdkSolver(int nn, int l) throws Exception {
         return new sudokuabstractsolver(nn, l);
     }
 }
