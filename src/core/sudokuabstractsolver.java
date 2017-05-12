@@ -8,34 +8,33 @@ import java.util.List;
  * this class also record the relation between grids
  * e.g.
  * standard 4*4 sudoku is indexing as
- *  0  1 | 2  3
- *  4  5 | 6  7
- *  -----+-----
- *  8  9 |10 11
+ * 0  1 | 2  3
+ * 4  5 | 6  7
+ * -----+-----
+ * 8  9 |10 11
  * 12 13 |14 15
- *
+ * <p>
  * so you need use
  * sudokuabstractsolver sdks = sudokuabstractsolver.getNewSdkSolver(4, 16);
  * sdks.setRelations(new int[][]{
- *      {0, 1, 2, 3},
- *      {4, 5, 6, 7},
- *      {8, 9, 10, 11},
- *      {12, 13, 14, 15},
- *
- *      {0, 4, 8, 12},
- *      {1, 5, 9, 13},
- *      {2, 6, 10, 14},
- *      {3, 7, 11, 15},
- *
- *      {0, 1, 4, 5},
- *      {2, 3, 6, 7},
- *      {8, 9, 12, 13},
- *      {10, 11, 14, 15}});
- * */
+ * {0, 1, 2, 3},
+ * {4, 5, 6, 7},
+ * {8, 9, 10, 11},
+ * {12, 13, 14, 15},
+ * <p>
+ * {0, 4, 8, 12},
+ * {1, 5, 9, 13},
+ * {2, 6, 10, 14},
+ * {3, 7, 11, 15},
+ * <p>
+ * {0, 1, 4, 5},
+ * {2, 3, 6, 7},
+ * {8, 9, 12, 13},
+ * {10, 11, 14, 15}});
+ */
 class sudokuabstractsolver {
     private sudokuabstract sdka;
     private int resultsize = 0;
-    private List<int[]> res;
     private boolean isUpdate;
     private int numbernum;
     private int len;

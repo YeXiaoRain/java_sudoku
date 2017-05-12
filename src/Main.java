@@ -1,6 +1,5 @@
 import core.*;
 
-import java.util.List;
 
 public class Main {
 
@@ -25,7 +24,7 @@ public class Main {
                     0, 0, 0, 0*/
             });
             int[] result = soduku.solve();
-            int maxi = testnum * testnum, maxj = testnum*testnum;
+            int maxi = testnum * testnum, maxj = testnum * testnum;
             int maxn = maxi * maxj;
             if (result.length == maxn) {
                 for (int i = 0; i < maxi; i++) {

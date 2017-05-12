@@ -1,6 +1,5 @@
 package core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,11 +48,6 @@ class sudokuabstract {
     private void validValueCheck(int i) throws Exception {
         if (i < 0 || i > numbernum)
             throw new sudokuException(sudokuException.ERR_ERROR, "invalid value");
-    }
-
-    private void validRelationlenthCheck(int i) throws Exception {
-        if (i != numbernum)
-            throw new sudokuException(sudokuException.ERR_ERROR, "invalid relation lenth");
     }
 
     grid getGrid(int p) throws Exception {
