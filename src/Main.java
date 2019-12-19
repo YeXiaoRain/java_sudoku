@@ -29,7 +29,7 @@ public class Main {
             if (result.length == maxn) {
                 for (int i = 0; i < maxi; i++) {
                     for (int j = 0; j < maxj; j++) {
-                        System.out.print(result[i * 4 + j] + " ");
+                        System.out.print(result[i * maxj + j] + " ");
                         if ((j + 1) % testnum == 0 && j + 1 != maxj)
                             System.out.print("| ");
                     }
